@@ -1,0 +1,205 @@
+/* Reset default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* App Container */
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff; /* White background */
+}
+
+/* Content Area */
+.content {
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding-bottom: var(--spacing-xl);
+}
+
+/* Global Styles */
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff; /* White background */
+  color: #1e293b; /* Dark text */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Overriding old styles for owner and renter dashboards */
+.navbar-custom {
+  background-color: #ffffff; /* White background */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.navbar-custom h2 {
+  color: #2563eb; /* Primary color */
+  font-weight: 700;
+  padding: 0;
+  margin: 0;
+}
+
+.navbar-custom a {
+  color: #1e293b; /* Dark text */
+  margin-right: 1rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  text-decoration: none;
+}
+
+.navbar-custom a:hover {
+  color: #2563eb; /* Primary color */
+}
+
+/* Form Controls - Modern Styling */
+.form-control, 
+.form-select {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #1e293b;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #2563eb;
+  outline: 0;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* Filter Container - Updated Styling */
+.filter-container {
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.filter-container input,
+.filter-container select {
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 1rem;
+  margin: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  color: #1e293b;
+}
+
+/* Cards - Updated Styling */
+.card {
+  margin-right: 1.25rem;
+  margin-bottom: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Button Styling */
+.btn-primary {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Styling */
+.table-custom {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table-custom th {
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-weight: 600;
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.table-custom td {
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.table-custom tr:hover {
+  background-color: #f1f5f9;
+}
+
+/* Footer Styling */
+.footer-custom {
+  background-color: #ffffff;
+  padding: 1.5rem 0;
+  border-top: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.footer-text {
+  color: #64748b;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .navbar-custom .navbar-links {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .filter-container input,
+  .filter-container select {
+    width: 100%;
+    margin: 0.25rem 0;
+  }
+  
+  .card {
+    margin-right: 0;
+    width: 100%;
+  }
+}
