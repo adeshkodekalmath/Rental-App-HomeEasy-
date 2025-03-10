@@ -7,7 +7,7 @@ import React, { useContext, useState } from "react";
 import { Container } from "react-bootstrap";
 import { UserContext } from "../../../App";
 import AllPropertiesCards from "../AllPropertiesCards";
-import AllProperty from "./AllProperties";
+import AllBookings from "./AllBookings";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -107,8 +107,8 @@ const RenterHome = () => {
               onChange={handleChange}
               aria-label="basic tabs example"
             >
-              <Tab label="All Properties" {...a11yProps(0)} />
-              <Tab label="My Properties" {...a11yProps(1)} />
+              <Tab label="Available Properties" {...a11yProps(0)} />
+              <Tab label="My Bookings" {...a11yProps(1)} />
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
@@ -121,7 +121,7 @@ const RenterHome = () => {
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
-            <AllProperty />
+            <AllBookings />
           </CustomTabPanel>
         </Box>
       </Container>

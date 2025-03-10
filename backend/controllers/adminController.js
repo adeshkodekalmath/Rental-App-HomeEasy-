@@ -5,11 +5,11 @@ const bookingSchema = require("../schemas/bookingModel");
 /////////getting all users///////////////
 const getAllUsersController = async (req, res) => {
   try {
-    const allUsers = await userSchema.find({});
+    const allUsers = await userSchema.find({ type: { $ne: "Admin" } });
     if (!allUsers) {
       return res.status(401).send({
         success: false,
-        message: "No users presents",
+        message: "No users present",
       });
     } else {
       return res.status(200).send({
@@ -65,18 +65,73 @@ const getAllPropertiesController = async (req, res) => {
 ////////get all bookings////////////
 const getAllBookingsController = async (req, res) => {
   try {
-    const allBookings = await bookingSchema.find();
+    const allBookings = await bookingSchema.find()
+      .populate({
+        path: 'propertyId',
+        select: 'propertyAddress propertyType propertyAdType'
+      })
+      .populate({
+        path: 'ownerID',
+        select: 'name phone'
+      })
+      .lean();
+
+    // Transform the data to match the frontend expectations
+    const transformedBookings = allBookings.map(booking => ({
+      _id: booking._id,
+      propertyId: booking.propertyId?._id || 'N/A',
+      propertyAddress: booking.propertyId?.propertyAddress || 'N/A',
+      ownerName: booking.ownerID?.name || 'N/A',
+      ownerPhone: booking.ownerID?.phone || 'N/A',
+      bookingStatus: booking.bookingStatus || 'N/A'
+    }));
+
     return res.status(200).send({
       success: true,
-      data: allBookings,
+      data: transformedBookings,
     });
   } catch (error) {
-    console.log("Error in get All Users Controller ", error);
+    console.log("Error in get All Bookings Controller ", error);
+    return res.status(500).send({
+      success: false,
+      message: "Error fetching bookings",
+    });
   }
 };
+
+////////delete property////////////
+const deletePropertyController = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    
+    // First, delete all bookings related to this property
+    await bookingSchema.deleteMany({ propertyId });
+    
+    // Then delete the property
+    const property = await propertySchema.findByIdAndDelete(propertyId);
+    if (!property) {
+      return res.status(404).send({
+        success: false,
+        message: "Property not found",
+      });
+    }
+    return res.status(200).send({
+      success: true,
+      message: "Property and related bookings deleted successfully",
+    });
+  } catch (error) {
+    console.log("Error in delete Property Controller ", error);
+    return res.status(500).send({
+      success: false,
+      message: "Error deleting property and related bookings",
+    });
+  }
+};
+
 module.exports = {
   getAllUsersController,
   handleStatusController,
   getAllPropertiesController,
-  getAllBookingsController
+  getAllBookingsController,
+  deletePropertyController
 };

@@ -8,10 +8,12 @@ import TableRow from "@mui/material/TableRow";
 import { message } from "antd";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Modal, Dropdown } from "react-bootstrap";
 
 const AllProperty = () => {
   const [allBookings, setAllBookings] = useState([]);
+  const [showTenantModal, setShowTenantModal] = useState(false);
+  const [selectedTenant, setSelectedTenant] = useState(null);
 
   const getAllProperty = async () => {
     try {
@@ -55,6 +57,52 @@ const AllProperty = () => {
     }
   };
 
+  const handleContactTenant = (tenant) => {
+    setSelectedTenant(tenant);
+    setShowTenantModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowTenantModal(false);
+    setSelectedTenant(null);
+  };
+
+  const getStatusButton = (booking) => {
+    const currentStatus = booking.bookingStatus.toLowerCase();
+    let nextStatus = 'pending';
+    let buttonVariant = 'warning';
+
+    // Determine next status and button color based on current status
+    switch (currentStatus) {
+      case 'pending':
+        nextStatus = 'approved';
+        buttonVariant = 'warning';
+        break;
+      case 'approved':
+        nextStatus = 'rejected';
+        buttonVariant = 'success';
+        break;
+      case 'rejected':
+        nextStatus = 'pending';
+        buttonVariant = 'danger';
+        break;
+      default:
+        nextStatus = 'pending';
+        buttonVariant = 'warning';
+    }
+
+    return (
+      <Button
+        variant={buttonVariant}
+        size="sm"
+        onClick={() => handleStatus(booking._id, booking.propertyId, nextStatus)}
+        className={`status-toggle-button status-${currentStatus}`}
+      >
+        {booking.bookingStatus}
+      </Button>
+    );
+  };
+
   return (
     <div>
       <TableContainer component={Paper}>
@@ -67,8 +115,8 @@ const AllProperty = () => {
             <TableRow>
               <TableCell>Booking ID</TableCell>
               <TableCell align="center">Property ID</TableCell>
-              <TableCell align="center">Tenent Name</TableCell>
-              <TableCell align="center">Tenent Phone</TableCell>
+              <TableCell align="center">Tenant Name</TableCell>
+              <TableCell align="center">Tenant Phone</TableCell>
               <TableCell align="center">Booking Status</TableCell>
               <TableCell align="center">Actions</TableCell>
             </TableRow>
@@ -85,33 +133,70 @@ const AllProperty = () => {
                 <TableCell align="center">{booking.propertyId}</TableCell>
                 <TableCell align="center">{booking.userName}</TableCell>
                 <TableCell align="center">{booking.phone}</TableCell>
-                <TableCell align="center">{booking.bookingStatus}</TableCell>
                 <TableCell align="center">
-                  {booking?.bookingStatus === "pending" ? (
-                    <Button
-                      onClick={() =>
-                        handleStatus(booking._id, booking.propertyId, "booked")
-                      }
-                      variant="outline-success"
-                    >
-                      Change
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() =>
-                        handleStatus(booking._id, booking.propertyId, "pending")
-                      }
-                      variant="outline-danger"
-                    >
-                      Change
-                    </Button>
-                  )}
+                  {getStatusButton(booking)}
+                </TableCell>
+                <TableCell align="center">
+                  <Button
+                    onClick={() => handleContactTenant(booking)}
+                    variant="primary"
+                    size="sm"
+                  >
+                    Contact Tenant
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Tenant Info Modal */}
+      <Modal 
+        show={showTenantModal} 
+        onHide={handleCloseModal}
+        centered
+        backdrop="static"
+        keyboard={false}
+        className="tenant-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Tenant Information</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedTenant && (
+            <div className="tenant-info">
+              <div className="info-item">
+                <strong>Name:</strong>
+                <span className="text-truncate">{selectedTenant.userName}</span>
+              </div>
+              <div className="info-item">
+                <strong>Phone:</strong>
+                <span className="text-truncate">{selectedTenant.phone}</span>
+              </div>
+              <div className="info-item">
+                <strong>Booking ID:</strong>
+                <span className="text-truncate">{selectedTenant._id}</span>
+              </div>
+              <div className="info-item">
+                <strong>Property ID:</strong>
+                <span className="text-truncate">{selectedTenant.propertyId}</span>
+              </div>
+              <div className="info-item">
+                <strong>Status:</strong>
+                <span className={`status-badge ${selectedTenant.bookingStatus.toLowerCase()}`}>
+                  {selectedTenant.bookingStatus}
+                </span>
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

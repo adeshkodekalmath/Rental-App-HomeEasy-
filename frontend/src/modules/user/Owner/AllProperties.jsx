@@ -136,6 +136,28 @@ const AllProperties = () => {
     }
   };
 
+  const handleAvailabilityToggle = async (propertyId, currentStatus) => {
+    try {
+      const newStatus = currentStatus === "Available" ? "Unavailable" : "Available";
+      const response = await axios.patch(
+        `http://localhost:8000/api/owner/updateproperty/${propertyId}`,
+        { isAvailable: newStatus },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      if (response.data.success) {
+        message.success(`Property marked as ${newStatus}`);
+        getAllProperty();
+      } else {
+        message.error(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      message.error("Failed to update property availability");
+    }
+  };
+
   return (
     <div>
       <TableContainer component={Paper}>
@@ -152,8 +174,8 @@ const AllProperties = () => {
               <TableCell align="center">Property Address</TableCell>
               <TableCell align="center">Owner Contact</TableCell>
               <TableCell align="center">Property Amt</TableCell>
-              <TableCell align="center">Property Availabilty</TableCell>
-              <TableCell align="center">Action</TableCell>
+              <TableCell align="center">Property Availability</TableCell>
+              <TableCell align="center">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -170,140 +192,33 @@ const AllProperties = () => {
                 <TableCell align="center">{property.propertyAddress}</TableCell>
                 <TableCell align="center">{property.ownerContact}</TableCell>
                 <TableCell align="center">{property.propertyAmt}</TableCell>
-                <TableCell align="center">{property.isAvailable}</TableCell>
-                {/* <TableCell align="center"><img style={{width: 150, height: 150}} src={`http://localhost:8001${property.propertyImage.path}`} alt="photos" /></TableCell> */}
                 <TableCell align="center">
-                  <Button
-                    variant="outline-info"
-                    onClick={() => handleShow(property._id, "Available")}
-                  >
-                    Edit
-                  </Button>
-                  <Modal
-                    show={show && editingPropertyId === property._id}
-                    onHide={handleClose}
-                  >
-                    <Modal.Header closeButton>
-                      <Modal.Title>Modal heading</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                      <Form onSubmit={() => saveChanges(property._id)}>
-                        <Row className="mb-3">
-                          <Form.Group as={Col} md="4">
-                            <Form.Group as={Col}>
-                              <Form.Label>Property type</Form.Label>
-                              <Form.Select
-                                name="propertyType"
-                                value={editingPropertyData.propertyType}
-                                onChange={handleChange}
-                                defaultValue={"Choose..."}
-                              >
-                                <option value="choose.." disabled>
-                                  Choose...
-                                </option>
-                                <option value="residential">Residential</option>
-                                <option value="commercial">Commercial</option>
-                                <option value="land/plot">Land/Plot</option>
-                              </Form.Select>
-                            </Form.Group>
-                          </Form.Group>
-                          <Form.Group as={Col} md="4">
-                            <Form.Group as={Col}>
-                              <Form.Label>Property Ad type</Form.Label>
-                              <Form.Select
-                                name="propertyAdType"
-                                value={editingPropertyData.propertyAdType}
-                                onChange={handleChange}
-                              >
-                                <option defaultValue value="choose.." disabled>
-                                  Choose...
-                                </option>
-                                <option value="rent">Rent</option>
-                                <option value="sale">Sale</option>
-                              </Form.Select>
-                            </Form.Group>
-                          </Form.Group>
-                          <Form.Group as={Col} md="4">
-                            <Form.Label>Property Full Address</Form.Label>
-                            <InputGroup hasValidation>
-                              <Form.Control
-                                type="text"
-                                placeholder="Address"
-                                aria-describedby="inputGroupPrepend"
-                                required
-                                name="propertyAddress"
-                                value={editingPropertyData.propertyAddress}
-                                onChange={handleChange}
-                              />
-                            </InputGroup>
-                          </Form.Group>
-                        </Row>
-                        <Row className="mb-3">
-                          <Form.Group as={Col} md="6">
-                            <Form.Label>Property Image</Form.Label>
-                            <Form.Control
-                              type="file"
-                              placeholder="image"
-                              required
-                              accept="image/*"
-                              name="image"
-                              onChange={handleImageChange}
-                            />
-                          </Form.Group>
-                          <Form.Group as={Col} md="3">
-                            <Form.Label>Owner Contact No.</Form.Label>
-                            <Form.Control
-                              type="phone"
-                              placeholder="contact number"
-                              required
-                              name="ownerContact"
-                              value={editingPropertyData.ownerContact}
-                              onChange={handleChange}
-                            />
-                          </Form.Group>
-                          <Form.Group as={Col} md="3">
-                            <Form.Label>Property Amt.</Form.Label>
-                            <Form.Control
-                              type="number"
-                              placeholder="amount"
-                              required
-                              name="propertyAmt"
-                              value={editingPropertyData.propertyAmt}
-                              onChange={handleChange}
-                            />
-                          </Form.Group>
-                          <FloatingLabel
-                            label="Additional details for the Property"
-                            className="mt-4"
-                          >
-                            <Form.Control
-                              name="additionalInfo"
-                              value={editingPropertyData.additionalInfo}
-                              onChange={handleChange}
-                              as="textarea"
-                              placeholder="Leave a comment here"
-                            />
-                          </FloatingLabel>
-                        </Row>
-                        <Button
-                          style={{ float: "right" }}
-                          type="submit"
-                          className="mx-2"
-                          variant="outline-info"
-                        >
-                          Update
-                        </Button>
-                      </Form>
-                    </Modal.Body>
-                  </Modal>
-
-                  <Button
-                    className="mx-2"
-                    variant="outline-danger"
-                    onClick={() => handleDelete(property._id)}
-                  >
-                    Delete
-                  </Button>
+                  <span className={`status-badge ${property.isAvailable.toLowerCase()}`}>
+                    {property.isAvailable}
+                  </span>
+                </TableCell>
+                <TableCell align="center">
+                  <div className="action-buttons">
+                    <Button
+                      variant={property.isAvailable === "Available" ? "danger" : "success"}
+                      onClick={() => handleAvailabilityToggle(property._id, property.isAvailable)}
+                      className="me-2"
+                    >
+                      {property.isAvailable === "Available" ? "Mark Unavailable" : "Mark Available"}
+                    </Button>
+                    <Button
+                      variant="outline-info"
+                      onClick={() => handleShow(property._id)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline-danger"
+                      onClick={() => handleDelete(property._id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

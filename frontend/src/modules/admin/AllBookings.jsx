@@ -1,83 +1,105 @@
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import { message } from "antd";
+import { Table, Tag, message } from "antd";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 const AllBookings = () => {
   const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const getAllBookings = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("http://localhost:8000/api/admin/getallbookings", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (response.data.success) {
+        setBookings(response.data.data);
+      } else {
+        message.error("Failed to fetch bookings");
+      }
+    } catch (error) {
+      console.log(error);
+      message.error("Error fetching bookings");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     getAllBookings();
   }, []);
 
-  const getAllBookings = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:8000/api/admin/getallbookings",
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
-
-      if (response.data.success) {
-        setBookings(response.data.data);
-      } else {
-        message.error(response.data.message);
-      }
-    } catch (error) {
-      console.log(error);
-      message.error("Error fetching bookings");
+  const getStatusColor = (status) => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return 'warning';
+      case 'approved':
+        return 'success';
+      case 'rejected':
+        return 'error';
+      default:
+        return 'default';
     }
   };
 
+  const columns = [
+    {
+      title: "Booking ID",
+      dataIndex: "_id",
+      key: "_id",
+      width: 220,
+    },
+    {
+      title: "Property ID",
+      dataIndex: "propertyId",
+      key: "propertyId",
+      width: 220,
+    },
+    {
+      title: "Property Address",
+      dataIndex: "propertyAddress",
+      key: "propertyAddress",
+      ellipsis: true,
+    },
+    {
+      title: "Owner Name",
+      dataIndex: "ownerName",
+      key: "ownerName",
+    },
+    {
+      title: "Status",
+      dataIndex: "bookingStatus",
+      key: "bookingStatus",
+      render: (status) => (
+        <Tag color={getStatusColor(status)} style={{ minWidth: 80, textAlign: 'center' }}>
+          {status}
+        </Tag>
+      ),
+    },
+  ];
+
+  useEffect(() => {
+    console.log("Bookings data:", bookings);
+  }, [bookings]);
+
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="bookings table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Booking ID</TableCell>
-            <TableCell>Property ID</TableCell>
-            <TableCell>User Name</TableCell>
-            <TableCell>Phone</TableCell>
-            <TableCell>Status</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {bookings.map((booking) => (
-            <TableRow
-              key={booking._id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell>{booking._id}</TableCell>
-              <TableCell>{booking.propertyId}</TableCell>
-              <TableCell>{booking.userName}</TableCell>
-              <TableCell>{booking.phone}</TableCell>
-              <TableCell>
-                <span style={{
-                  color: booking.bookingStatus === "confirmed" ? "green" : "orange",
-                  fontWeight: "bold"
-                }}>
-                  {booking.bookingStatus}
-                </span>
-              </TableCell>
-            </TableRow>
-          ))}
-          {bookings.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={5} align="center">
-                No bookings found
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <div>
+      <h1>All Bookings</h1>
+      <Table 
+        columns={columns} 
+        dataSource={bookings} 
+        rowKey="_id"
+        pagination={{ 
+          pageSize: 10,
+          showSizeChanger: true,
+          showTotal: (total) => `Total ${total} bookings`
+        }}
+        loading={loading}
+        scroll={{ x: true }}
+      />
+    </div>
   );
 };
 
