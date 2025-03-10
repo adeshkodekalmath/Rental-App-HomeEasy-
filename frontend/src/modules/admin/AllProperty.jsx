@@ -1,79 +1,106 @@
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import { message } from "antd";
+import { Table, Button, Space, message } from "antd";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 const AllProperty = () => {
-  const [allProperties, setAllProperties] = useState([]);
+  const [properties, setProperties] = useState([]);
 
-  const getAllProperty = async () => {
+  const getAllProperties = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:8000/api/admin/getallproperties",
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
-
+      const response = await axios.get("http://localhost:8000/api/admin/getallproperties", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       if (response.data.success) {
-        setAllProperties(response.data.data);
-      } else {
-        message.error(response.data.message);
+        setProperties(response.data.data);
       }
     } catch (error) {
       console.log(error);
     }
   };
 
+  const handleDelete = async (propertyId) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8000/api/admin/deleteproperty/${propertyId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        message.success("Property deleted successfully");
+        getAllProperties();
+      }
+    } catch (error) {
+      console.log(error);
+      message.error("Error deleting property");
+    }
+  };
+
   useEffect(() => {
-    getAllProperty();
+    getAllProperties();
   }, []);
+
+  const columns = [
+    {
+      title: "Property ID",
+      dataIndex: "_id",
+      key: "_id",
+    },
+    {
+      title: "Owner ID",
+      dataIndex: "ownerId",
+      key: "ownerId",
+    },
+    {
+      title: "Property Type",
+      dataIndex: "propertyType",
+      key: "propertyType",
+    },
+    {
+      title: "Ad Type",
+      dataIndex: "propertyAdType",
+      key: "propertyAdType",
+    },
+    {
+      title: "Address",
+      dataIndex: "propertyAddress",
+      key: "propertyAddress",
+    },
+    {
+      title: "Owner Contact",
+      dataIndex: "ownerContact",
+      key: "ownerContact",
+    },
+    {
+      title: "Amount",
+      dataIndex: "propertyAmt",
+      key: "propertyAmt",
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button
+            type="primary"
+            danger
+            onClick={() => handleDelete(record._id)}
+          >
+            Delete
+          </Button>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <div>
-      <TableContainer component={Paper}>
-        <Table
-          className="table-custom"
-          sx={{ minWidth: 650 }}
-          aria-label="simple table"
-        >
-          <TableHead>
-            <TableRow>
-              <TableCell>Property ID</TableCell>
-              <TableCell align="center">Owner ID</TableCell>
-              <TableCell align="center">Property Type</TableCell>
-              <TableCell align="center">Property Ad Type</TableCell>
-              <TableCell align="center">Property Address</TableCell>
-              <TableCell align="center">Owner Contact</TableCell>
-              <TableCell align="center">Property Amt</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {allProperties.map((property) => (
-              <TableRow
-                key={property._id}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  {property._id}
-                </TableCell>
-                <TableCell align="center">{property.ownerId}</TableCell>
-                <TableCell align="center">{property.propertyType}</TableCell>
-                <TableCell align="center">{property.propertyType}</TableCell>
-                <TableCell align="center">{property.propertyAddress}</TableCell>
-                <TableCell align="center">{property.ownerContact}</TableCell>
-                <TableCell align="center">{property.propertyAmt}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <h1>All Properties</h1>
+      <Table columns={columns} dataSource={properties} rowKey="_id" />
     </div>
   );
 };

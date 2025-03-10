@@ -98,30 +98,39 @@ const AdminHome = () => {
   const user = React.useContext(UserContext);
   const [value, setValue] = useState(0);
   const [stats, setStats] = useState({
-    users: 0,
-    properties: 0,
-    bookings: 0
+    totalUsers: 0,
+    totalProperties: 0,
+    totalBookings: 0,
   });
 
-  const fetchStats = async () => {
+  const getStats = async () => {
     try {
       const [usersRes, propertiesRes, bookingsRes] = await Promise.all([
         axios.get("http://localhost:8000/api/admin/getallusers", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }),
         axios.get("http://localhost:8000/api/admin/getallproperties", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }),
         axios.get("http://localhost:8000/api/admin/getallbookings", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         })
       ]);
 
-      setStats({
-        users: usersRes.data.data.length,
-        properties: propertiesRes.data.data.length,
-        bookings: bookingsRes.data.data.length
-      });
+      if (usersRes.data.success && propertiesRes.data.success && bookingsRes.data.success) {
+        const nonAdminUsers = usersRes.data.data.filter(user => user.type !== "Admin");
+        setStats({
+          totalUsers: nonAdminUsers.length,
+          totalProperties: propertiesRes.data.data.length,
+          totalBookings: bookingsRes.data.data.length
+        });
+      }
     } catch (error) {
       console.log(error);
       message.error("Error fetching statistics");
@@ -129,7 +138,7 @@ const AdminHome = () => {
   };
 
   useEffect(() => {
-    fetchStats();
+    getStats();
   }, []);
 
   const handleChange = (event, newValue) => {
@@ -137,7 +146,7 @@ const AdminHome = () => {
   };
 
   const handleRefresh = () => {
-    fetchStats();
+    getStats();
     message.success("Dashboard refreshed!");
   };
 
@@ -185,19 +194,19 @@ const AdminHome = () => {
         >
           <StatCard
             title="Total Users"
-            value={stats.users}
+            value={stats.totalUsers}
             icon={<PeopleAltIcon sx={{ fontSize: 50, color: cardColors.users.text }} />}
             color={cardColors.users}
           />
           <StatCard
             title="Total Properties"
-            value={stats.properties}
+            value={stats.totalProperties}
             icon={<HomeIcon sx={{ fontSize: 50, color: cardColors.properties.text }} />}
             color={cardColors.properties}
           />
           <StatCard
             title="Total Bookings"
-            value={stats.bookings}
+            value={stats.totalBookings}
             icon={<BookOnlineIcon sx={{ fontSize: 50, color: cardColors.bookings.text }} />}
             color={cardColors.bookings}
           />

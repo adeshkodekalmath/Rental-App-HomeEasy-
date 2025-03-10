@@ -9,20 +9,19 @@ import { message } from "antd";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
-const AllProperty = () => {
-  const [allProperties, setAllProperties] = useState([]);
+const AllBookings = () => {
+  const [allBookings, setAllBookings] = useState([]);
 
-  const getAllProperty = async () => {
+  const getAllBookings = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/user/getallbookings`,
+        "http://localhost:8000/api/user/getallbookings",
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-
       if (response.data.success) {
-        setAllProperties(response.data.data);
+        setAllBookings(response.data.data);
       } else {
         message.error(response.data.message);
       }
@@ -32,7 +31,7 @@ const AllProperty = () => {
   };
 
   useEffect(() => {
-    getAllProperty();
+    getAllBookings();
   }, []);
 
   return (
@@ -46,14 +45,15 @@ const AllProperty = () => {
           <TableHead>
             <TableRow>
               <TableCell>Booking ID</TableCell>
-              <TableCell>Property ID</TableCell>
-              <TableCell align="center">Tenant Name</TableCell>
-              <TableCell align="center">Phone</TableCell>
+              <TableCell align="center">Property ID</TableCell>
+              <TableCell align="center">Property Address</TableCell>
+              <TableCell align="center">Owner Name</TableCell>
+              <TableCell align="center">Owner Phone</TableCell>
               <TableCell align="center">Booking Status</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {allProperties.map((booking) => (
+            {allBookings.map((booking) => (
               <TableRow
                 key={booking._id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -61,11 +61,10 @@ const AllProperty = () => {
                 <TableCell component="th" scope="row">
                   {booking._id}
                 </TableCell>
-                <TableCell component="th" scope="row">
-                  {booking.propertyId}
-                </TableCell>
-                <TableCell align="center">{booking.userName}</TableCell>
-                <TableCell align="center">{booking.phone}</TableCell>
+                <TableCell align="center">{booking.propertyId}</TableCell>
+                <TableCell align="center">{booking.propertyAddress}</TableCell>
+                <TableCell align="center">{booking.ownerName}</TableCell>
+                <TableCell align="center">{booking.ownerPhone}</TableCell>
                 <TableCell align="center">
                   <span className={`status-badge ${booking.bookingStatus.toLowerCase()}`}>
                     {booking.bookingStatus}
@@ -80,4 +79,4 @@ const AllProperty = () => {
   );
 };
 
-export default AllProperty;
+export default AllBookings; 

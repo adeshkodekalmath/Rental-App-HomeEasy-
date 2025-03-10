@@ -2,7 +2,7 @@ const express = require("express");
 const authMiddlware = require("../middlewares/authMiddlware");
 const bcrypt = require("bcryptjs");
 const userSchema = require("../schemas/userModel");
-const { getAllUsersController, handleStatusController, getAllPropertiesController, getAllBookingsController } = require("../controllers/adminController");
+const { getAllUsersController, handleStatusController, getAllPropertiesController, getAllBookingsController, deletePropertyController } = require("../controllers/adminController");
 
 const router = express.Router()
 
@@ -51,5 +51,7 @@ router.post('/handlestatus', authMiddlware, handleStatusController)
 router.get('/getallproperties', authMiddlware, getAllPropertiesController)
 
 router.get('/getallbookings', authMiddlware, getAllBookingsController)
+
+router.delete('/deleteproperty/:propertyId', authMiddlware, deletePropertyController)
 
 module.exports = router
